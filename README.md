@@ -1,28 +1,38 @@
-# ToDO: Tie rank introduced preference modeling makes better alignment for large language models
+# TODO: Enhancing LLM Alignment with Ternary Preferences
 
 ## Overview
 
-Direct Preference Optimization (DPO) can significantly improve the performance of large language models (LLMs) on downstream tasks aligned with human preference. This process commonly applies the BT model and use preference datasets with pairwise preferred and dispreferred responses. However, if both responses are of high quality and there is no obvious preference difference between these responses, DPO can lead to sub-optimal preferences modeling and alignment results by treating such tied pairwise responses as "preferred'' and "dispreferred''. To address this issue, we introduce tie rank into current preference optimization procedure. We modify the BT model into the <u>**T**</u>ie rank introduced <u>**BT**</u> (TBT) model by introducing a threshold value of preference difference to fit the triplet preference relations. We then propose <u>**T**</u>ie rank intr<u>**o**</u>duced <u>**D**</u>irect Preference <u>**O**</u>ptimization (ToDO), an offline-policy method to improve preference modeling and alignment capacity of LLMs. We first analyse the limitations of DPO and advantages of ToDO in handling tie data theoretically. Then, we conduct experiments on both Mistral and Llama3 models to compare the effectiveness of DPO and ToDO. Experimental results demonstrate that ToDO, aligned with various ratios of tie data, achieves better preference modeling than DPO under both in-distribution and out-of-distribution data. Subsequently, we evaluate the alignment capacity of models aligned with DPO and ToDO on multiple benchmarks. Experimental results demonstrate that suitable ratio of tie data used in ToDO can improve model alignment capacity more effectively than DPO. In addition to being used in the ternary preference optimization process, ToDO can also be directly applied to binary preference alignment, achieving better alignment results than DPO. Further more, this tie rank introduced preference optimization procedure can not only be used in offline policies like DPO but can also be integrated into the reward model training process or other online optimization policies.
+Aligning large language models (LLMs) with human intent is critical for enhancing their performance across a variety of tasks. Standard alignment techniques, such as Direct Preference Optimization (DPO), often rely on the binary Bradley-Terry (BT) model, which can struggle to capture the complexities of human preferences—particularly in the presence of noisy or inconsistent labels and frequent ties. To address these limitations, we introduce the **T**ie-rank **O**riented **B**radley-**T**erry model (TOBT), an extension of the BT model that explicitly incorporates ties, enabling more nuanced preference representation. Building on this, we propose **T**ie-rank **O**riented **D**irect Preference **O**ptimization (TODO), a novel alignment algorithm that leverages TOBT's ternary ranking system to improve preference alignment. In evaluations on Mistral-7B and Llama 3-8B models, TODO consistently outperforms DPO in modeling preferences across both in-distribution and out-of-distribution datasets. Additional assessments using MT Bench and benchmarks such as Piqa, ARC-c, and MMLU further demonstrate TODO's superior alignment performance. Notably, TODO also shows strong results in binary preference alignment, highlighting its versatility and potential for broader integration into LLM alignment. The code for TODO is made publicly available.
 
 ![framework](figs/framework.png)
-## Model weights
 
 ## Set ups
 
 ```sh
-conda create -n todo python=3.9 -y && conda activate todo
+conda create -n TODO python=3.9 -y && conda activate TODO
 pip install -r requirements.txt
 ```
 
 ## Datasets
 
-#### https://huggingface.co/datasets/irisxx/ultrafeedback_tied
+Please download the datasets from https://huggingface.co/datasets/irisxx/ultrafeedback_tied, the train directory contains four train sets with different ratios of tie data. And the test directory contains the in-distribution test set non_tie_data_test.jsonl.
+
+| Train data | Path                             |
+| ---------- | -------------------------------- |
+| ratio 0    | train/mixed_data_ratio_0.jsonl   |
+| ratio 0.1  | train/mixed_data_ratio_0.1.jsonl |
+| ratio 0.2  | train/mixed_data_ratio_0.2.jsonl |
+| ratio 0.3  | train/mixed_data_ratio_0.3.jsonl |
+
+| Test data | Path                         |
+| --------- | ---------------------------- |
+| test set  | test/non_tie_data_test.jsonl |
 
 ## Usage and Examples
 
-#### Training 
+#### Training
 
-First, set up training config in a yaml. You can select any dataset used to conduct DPO/ToDO training.
+First, set up training config in a yaml. You can select any dataset used to conduct DPO or TODO training.
 
 ##### DPO training
 
@@ -32,15 +42,15 @@ accelerate launch --config_file deep_zero3_config_process.yaml dpo_tie_train.py 
 accelerate launch --config_file deep_zero3_config_process.yaml dpo_tie_train.py --train_args_file ./train_args/llama3-8b-dpo.yaml
 ```
 
-##### ToDO training
+##### TODO training
 
 ```shell
-accelerate launch --config_file deep_zero3_config_process.yaml dpo_tie_train.py --train_args_file ./train_args/mistral-7b-todo.yaml
+accelerate launch --config_file deep_zero3_config_process.yaml dpo_tie_train.py --train_args_file ./train_args/mistral-7b-TODO.yaml
 
-accelerate launch --config_file deep_zero3_config_process.yaml dpo_tie_train.py --train_args_file ./train_args/llama3-8b-todo.yaml
+accelerate launch --config_file deep_zero3_config_process.yaml dpo_tie_train.py --train_args_file ./train_args/llama3-8b-TODO.yaml
 ```
 
-#### ToDO evalutation
+#### TODO evalutation
 
 ##### Evaluation on test test
 
@@ -51,64 +61,33 @@ CUDA_VISIBLE_DEVICES=0,1 python3 dpo_tie_eval.py \
         --model ${policy_model_name_or_path} \ #policy model
         --ref_model ${reference_model_name_or_path}  \ #ref model
         --dataset_path ${test_set_path} \ #path of test set
-        --original_reward 0 \ #0 for DPO and 1 for ToDO
+        --original_reward 0 \ #0 for DPO and 1 for TODO
         --dpo_beta 0.01 \ # beta value during alignment process
         --batch_size 8
 ```
 
-For ToDO evaluation
+For TODO evaluation
 
 ```shell
 CUDA_VISIBLE_DEVICES=0,1 python3 dpo_tie_eval.py \
         --model ${policy_model_name_or_path} \ #policy model
         --ref_model ${reference_model_name_or_path}  \ #ref model
         --dataset_path ${test_set_path} \ #path of test set
-        --original_reward 1 \ #0 for DPO and 1 for ToDO
+        --original_reward 1 \ #0 for DPO and 1 for TODO
         --dpo_beta 0.01 \ # beta value during alignment process
-        --dpo_theta -0.5 \ # default is -0.5, represents the -alpha value in ToDO, the same as training process
+        --dpo_theta -0.5 \ # default is -0.5, represents the -alpha value in TODO, the same as training process
         --batch_size 8
 ```
 
 ##### Evalutaion of Reward Bench
 
-We direct modify the implementation of Reward Bench to evaluate the preference modeling ability of DPO and ToDO, please refer to the implementation of Reward Bench
-First, clone the repository of Reward Bench and set up the environment.
-
-
-```shell
-
-For DPO evaluation 
-
-```shell
-CUDA_VISIBLE_DEVICES=0,1 python3 scripts/run_dpo.py ${policy_model_name_or_path} \
---ref_model ${reference_model_name_or_path} \
---dpo_beta 0.01 \
---evaluation_mode 0 \ #0 for DPO, 1 for ToDO
---save_path_prefix  Results/reward_bench_results \ #save path
---model_abbr ${set_model_abbr} \ # model abbreviation
---batch_size 8
-#--prior_datsets 
-```
-
-For ToDO evaluation
-
-```shell
-CUDA_VISIBLE_DEVICES=0,1 python3 scripts/run_dpo.py --model  ${policy_model_name_or_path} \
---ref_model ${reference_model_name_or_path} \
---dpo_theta -0.5 \
---dpo_beta 0.01 \ 
---evaluation_mode 1 \ #0 for DPO, 1 for ToDO
---save_path_prefix  Results/reward_bench_results/ \save path
---model_abbr ${set_model_abbr} \ # model abbreviation
---batch_size 8
-#--prior_datsets 
-```
+We directly modify the implementation of Reward Bench to evaluate the preference modeling ability of DPO and TODO, please refer to the implementation of **https://github.com/XXares/TODO_reward_bench**.
 
 #### Evalution on MT bench
 
 We evaluate the performance follows the instruction of https://github.com/lm-sys/FastChat/tree/main/fastchat/llm_judge
 
-##### Noting that we  use gpt-4-turbo-2024-04-09 to score generated results. 
+##### Noting that we  use gpt-4-turbo-2024-04-09 to score generated results.
 
 #### Evaluation of series popular benchmarks
 
@@ -123,6 +102,8 @@ Then you can evaluate the performance of popular benchmakrs using following shel
 ```shell
 python run.py --models ${model_name_or_path} --datasets piqa_ppl ARC_c_ppl ARC_e_ppl mmlu_ppl hellaswag_ppl winogrande_ll
 ```
+
+
 
 
 

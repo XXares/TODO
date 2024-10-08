@@ -19,7 +19,6 @@ tensorboard==2.16.2
 tensorboard-data-server==0.7.2
 tokenizers==0.15.1
 torch==1.13.1
-torchvision==0.14.1
 tqdm==4.64.1
 transformers==4.36.2
 translationstring==1.4

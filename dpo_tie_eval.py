@@ -31,7 +31,6 @@ def create_tie_model(model_args):
     tokenizer.pad_token_id = tokenizer.eos_token_id if tokenizer.pad_token_id is None else tokenizer.pad_token_id  # set as the <unk> token
     config = AutoConfig.from_pretrained(model_args.model)
     config._attn_implementation = "flash_attention_2"
-    ##add attribute
     tokenizer.truncation_side = "left"
     if tokenizer.model_max_length > 100_000:
         tokenizer.model_max_length = 2048

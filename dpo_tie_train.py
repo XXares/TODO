@@ -83,24 +83,18 @@ def setup_everything():
     args = parser.parse_args()
 
     train_args_file = args.train_args_file
-    # 读取训练的参数配置
     parser = HfArgumentParser((ModelArguments, TrainingArguments))
-    # 解析得到自定义参数，以及自带参数
     model_args, training_args = parser.parse_yaml_file(yaml_file=train_args_file)
-    # 创建输出目录
     rank = int(os.environ.get('RANK', -1))
     if rank == 0:
         if not os.path.exists(training_args.output_dir):
             os.makedirs(training_args.output_dir)
     logger.add(join(training_args.output_dir, 'train.log'))
     logger.info("train_args:{}".format(training_args))
-    # 加载训练配置文件
     with open(train_args_file, "r") as f:
         train_args = yaml.safe_load(f)
-    # 保存训练参数到输出目录
     with open(join(training_args.output_dir, 'train_args.yaml'), "w") as f:
         yaml.dump(train_args, f)
-    # 设置随机种子
     set_seed(training_args.seed)
     return model_args, training_args
 
@@ -121,9 +115,6 @@ def main():
     )
     dataset = dataset.rename_columns(
         {"text_prompt": "prompt", "text_chosen": "chosen", "text_rejected": "rejected", "text_tie": "tie"})
-    # print(dataset[0]["prompt"])
-    # return
-    # # Replace column names with what TRL needs, text_chosen -> chosen, text_rejected -> rejected, and text_reference -> reference
     peft_config = LoraConfig(
         task_type=TaskType.CAUSAL_LM,
         target_modules=model_args.target_modules,
