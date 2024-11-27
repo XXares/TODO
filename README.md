@@ -103,6 +103,20 @@ Then you can evaluate the performance of popular benchmakrs using following shel
 python run.py --models ${model_name_or_path} --datasets piqa_ppl ARC_c_ppl ARC_e_ppl mmlu_ppl hellaswag_ppl winogrande_ll
 ```
 
+## Citation
+Please cite our paper if you find the repo helpful in your work:
+```
+@misc{guo2024todoenhancingllmalignment,
+      title={TODO: Enhancing LLM Alignment with Ternary Preferences}, 
+      author={Yuxiang Guo and Lu Yin and Bo Jiang and Jiaqi Zhang},
+      year={2024},
+      eprint={2411.02442},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2411.02442}, 
+}
+```
+
 
 
 
