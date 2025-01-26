@@ -91,7 +91,7 @@ We evaluate the performance follows the instruction of https://github.com/lm-sys
 
 #### Evaluation of series popular benchmarks
 
-We evalutaion the other benchmarks using opencompass . Pleaso first set up the environment required by opencompass follows the instruction https://github.com/open-compass/OpenCompass/ and we use the following prompt templates.
+We evalutaion the other benchmarks using opencompass . Pleaso first set up the environment required by opencompass follows the instruction of https://github.com/open-compass/OpenCompass/ and we use the following prompt templates.
 
 | Task            | piqa            | arc-c            | arc-e            | mmlu            | hellaswag            | winogrande           |
 | --------------- | --------------- | ---------------- | ---------------- | --------------- | -------------------- | -------------------- |
@@ -102,9 +102,24 @@ Then you can evaluate the performance of popular benchmakrs using following shel
 ```shell
 python run.py --models ${model_name_or_path} --datasets piqa_ppl ARC_c_ppl ARC_e_ppl mmlu_ppl hellaswag_ppl winogrande_ll
 ```
+#### Hyperparameters settings of Baselines
+
+##### For hyperparameter selection, we follow the approach outlined in SimPO's work ([SimPO GitHub Repository](https://github.com/princeton-nlp/SimPO)). For the parameter `ODPO_alpha`, we adhere to the default settings described in the ODPO paper ([ODPO Paper](http://arxiv.org/abs/2402.10571)) and maintain the same learning rate and batch size as those used for DPO and TODO in our experiments.
+
+- **Mistral-7B**
+
+| Methods | beta | λD/λU | ODPO_alpha | SimPO_gemma_beta | LR   | Batch Size |
+| ------- | ---- | ----- | ---------- | ---------------- | ---- | ---------- |
+| KTO     | 0.01 | 1.0   | /          | /                | 5e-7 | 64         |
+| SImPO   | 2.0  | /     | /          | 0.8              | 5e-7 | 64         |
+| ODPO    | 0.01 | /     | 1.0        | /                | 5e-7 | 64         |
+
+####  Construction details of Chatarena
+
+Chatarena dataset is collectedd from [lmsys-chatbot_arena_conversations](https://huggingface.co/datasets/agie-ai/lmsys-chatbot_arena_conversations). It includes pairs with clear preference differences as well as tied pairs. For tied pairs, we removed the "tie (both bad)" label, resulting in a total of approximately 26k data. From this, a test set of 1,500 no-tie samples was randomly selected, and a training set of 20k samples was created with tie data ratios of 0 and 0.17 (the maximum being 0.17 due to the limited availability of tie data in the source dataset). You can obtain the Chatarena dataset from [chatarena_tied](https://huggingface.co/datasets/irisxx/chatarena_tied).
 
 ## Citation
-Please cite our paper if you find the repo helpful in your work:
+Please cite our paper if you find the repo and datasets helpful in your work:
 ```
 @misc{guo2024todoenhancingllmalignment,
       title={TODO: Enhancing LLM Alignment with Ternary Preferences}, 
