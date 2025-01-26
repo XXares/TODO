@@ -45,9 +45,9 @@ accelerate launch --config_file deep_zero3_config_process.yaml dpo_tie_train.py 
 ##### TODO training
 
 ```shell
-accelerate launch --config_file deep_zero3_config_process.yaml dpo_tie_train.py --train_args_file ./train_args/mistral-7b-TODO.yaml
+accelerate launch --config_file deep_zero3_config_process.yaml dpo_tie_train.py --train_args_file ./train_args/mistral-7b-todo.yaml
 
-accelerate launch --config_file deep_zero3_config_process.yaml dpo_tie_train.py --train_args_file ./train_args/llama3-8b-TODO.yaml
+accelerate launch --config_file deep_zero3_config_process.yaml dpo_tie_train.py --train_args_file ./train_args/llama3-8b-todo.yaml
 ```
 
 #### TODO evalutation
