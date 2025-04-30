@@ -121,14 +121,13 @@ Chatarena dataset is collectedd from [lmsys-chatbot_arena_conversations](https:/
 ## Citation
 Please cite our paper if you find the repo and datasets helpful in your work:
 ```
-@misc{guo2024todoenhancingllmalignment,
-      title={TODO: Enhancing LLM Alignment with Ternary Preferences}, 
-      author={Yuxiang Guo and Lu Yin and Bo Jiang and Jiaqi Zhang},
-      year={2024},
-      eprint={2411.02442},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL},
-      url={https://arxiv.org/abs/2411.02442}, 
+@inproceedings{
+guo2025todo,
+title={{TODO}: Enhancing {LLM} Alignment with Ternary Preferences},
+author={Yuxiang Guo and Lu Yin and Bo Jiang and Jiaqi Zhang},
+booktitle={The Thirteenth International Conference on Learning Representations},
+year={2025},
+url={https://openreview.net/forum?id=utkGLDSNOk}
 }
 ```
 
